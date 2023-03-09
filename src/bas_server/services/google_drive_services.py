@@ -6,17 +6,19 @@ import io
 from googleapiclient.http import MediaIoBaseUpload
 
 
-def create_drive_folder(driveApiKey, parent_folder_id, floder_name):
-    CLIENT_SECRETS_FILE = 'src/data/drive_oath_key.json'
+def anthentifiate_google_cloud(google_key_file):
     scopes = ['https://www.googleapis.com/auth/drive']
     # Create the flow object
-    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes)
-
+    flow = InstalledAppFlow.from_client_secrets_file(google_key_file, scopes)
     # Run the flow and get the credentials
-    credentials = flow.run_local_server(port=0)
+    google_credentials = flow.run_local_server(port=0)
+    return google_credentials
+
+
+def create_drive_folder(google_credentials, parent_folder_id, floder_name):
     try:
         # create drive api client
-        service = build('drive', 'v3',  credentials=credentials)
+        service = build('drive', 'v3',  credentials=google_credentials)
         folder_metadata = {
             'name': floder_name,
             'mimeType': 'application/vnd.google-apps.folder',
@@ -34,21 +36,10 @@ def create_drive_folder(driveApiKey, parent_folder_id, floder_name):
         return None
 
 
-def create_drive_file(driveApiKey, folder_id, file_name, file_content):
-    CLIENT_SECRETS_FILE = 'src/data/drive_oath_key.json'
-    scopes = ['https://www.googleapis.com/auth/drive']
-    # Create the flow object
-
-    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes)
-    print("stop")
-    # Run the flow and get the credentials
-    # TODO: run it when the application is initializing, and use everywhere
-    credentials = flow.run_local_server(port=0)
-
-
+def create_drive_file(google_credentials, folder_id, file_name, file_content):
     try:
         # create drive api client
-        service = build('drive', 'v3',  credentials=credentials)
+        service = build('drive', 'v3',  credentials=google_credentials)
         file_metadata = {
             'name': file_name,
             'parents': [folder_id]
